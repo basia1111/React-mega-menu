@@ -2,7 +2,7 @@
 
 This project is built using [React](https://reactjs.org/) and [Vite](https://vitejs.dev/). It features a responsive navigation bar with a mega menu.
 
-<img width="1678" alt="Zrzut ekranu 2024-10-24 o 00 01 43" src="https://github.com/user-attachments/assets/210d773a-71e6-4206-b4cf-71c8e4333161">
+<img width="1677" alt="Zrzut ekranu 2024-10-24 o 00 08 18" src="https://github.com/user-attachments/assets/f0b2275e-3418-4424-affe-a956a332a2e1">
 
 ## Technologies Used
 

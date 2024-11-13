@@ -1,10 +1,33 @@
 import { NavLink } from 'react-router-dom';
 import { menuData } from './data';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Dropdown from './Dropdown';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function MegaMenu() {
     const [activeTab, setActiveTab] = useState(null);
+    const [dropdownPosition, setDropdownPosition] = useState({left:0, top:0});
+    const activeTabRef = useRef(null)
+
     const activeTabContent = menuData.find(item => item.title === activeTab);
+
+    const underlineVariants = {
+        hidden:{scaleX:0},
+        visible:{scaleX:1}
+    }
+    const updateDropdownPosition = () => {
+        const { left, width} = activeTabRef.current.getBoundingClientRect();
+        setDropdownPosition({
+            left: left + width / 2 - 280,
+        })
+    }
+
+    useEffect(() => {
+        if(activeTab){
+            updateDropdownPosition()
+            console.log(activeTab)
+        }
+    }, [activeTab] )
 
     return (
         <>
@@ -12,49 +35,39 @@ export function MegaMenu() {
                 {menuData.map((item, index) => (
                     <li 
                         key={index} 
-                        className="flex items-center h-full group"
+                        className='relative flex column items-center group'
+                        
                         onMouseEnter={() => setActiveTab(item.title)}
                         onMouseLeave={() => setActiveTab(null)}
                     >
                         <NavLink 
                             to={item.link}
-                            className={({ isActive }) => 
-                                `flex items-center h-full border-b-2 transition-all ${
-                                    (isActive && activeTab === null) 
-                                    ? 'border-text' 
-                                    : 'border-transparent hover:border-text'
-                                }`
-                            }
+                            ref={item.title === activeTab ? activeTabRef : null }
+                            style={({ isActive }) => isActive ? {color:"#3d5afe"} : {}}
+                            className={` ${item.title === activeTab ? "text-indigo_accent" :""}`}
                         >
                             {item.title}
                         </NavLink>
+                        <motion.div
+                            variants={underlineVariants}
+                            initial="hidden"
+                            animate={item.title === activeTab ? "visible" : "hidden"}
+                            transition={{
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 20,
+                                delay: 0.2
+                            }}
+                            className="bg-indigo_accent absolute bottom-0 left-0 right-0 h-0.5"
+                        />
                     </li>
                 ))}  
             </ul>
-            {activeTab && activeTabContent?.dropdown && (
-                <div 
-                    className="w-3/4 flex justify-evenly gap-20 absolute top-[80px] bg-white rounded-b-3xl shadow-md p-7 z-10 transition-all" 
-                    onMouseEnter={() => setActiveTab(activeTab)}
-                    onMouseLeave={() => setActiveTab(null)}
-                >
-                    {activeTabContent.dropdown.map(subitem => (
-                        <div key={subitem.category} className="relative">
-                            <h2 className="font-semibold pb-4">{subitem.category}</h2>
-                            {subitem.links.map((link, linkIndex) => (
-                                <NavLink 
-                                    key={linkIndex}
-                                    to={link}
-                                    className={({ isActive }) => 
-                                        isActive ? 'text-indigo_accent' : 'block hover:text-indigo_accent'
-                                    }
-                                >
-                                    {link}
-                                </NavLink>
-                            ))}
-                        </div>   
-                    ))}
-                </div>
-            )}
+            <AnimatePresence >
+                {activeTab && activeTabContent?.dropdown && (
+                <Dropdown  layout setActiveTab={setActiveTab} activeTab={activeTab} activeTabContent={activeTabContent} dropdownPosition={dropdownPosition}/>
+                )}
+            </AnimatePresence>
         </>
     );
 }
